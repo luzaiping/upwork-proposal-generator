@@ -3,35 +3,33 @@ import { useState } from 'react'
 import ProposalForm from './features/proposal/components/ProposalForm'
 import ProposalResult from './features/proposal/components/ProposalResult'
 
+import { generateProposal } from './services/ai'
+import type { ProposalFormData } from './types/proposal'
+
 export default function App() {
   const [loading, setLoading] = useState(false)
-
   const [result, setResult] = useState('')
 
+  const [form, setForm] = useState<ProposalFormData>({
+    jobDescription: '',
+    skills: '',
+    tone: 'Professional',
+  })
+
   const handleGenerate = async () => {
-    setLoading(true)
+    try {
+      setLoading(true)
+      setResult('')
 
-    setTimeout(() => {
-      setResult(`
-Hello Client,
+      const output = await generateProposal(form)
 
-I am a senior frontend developer with strong experience in React, TypeScript, and AI-powered applications.
-
-I can help you build a clean, scalable, and modern solution for your project.
-
-My recent work includes:
-- AI SaaS tools
-- Dashboard systems
-- Frontend architecture
-- Tailwind UI systems
-
-I would love to discuss your project further.
-
-Best regards
-      `)
-
+      setResult(output)
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Unknown error'
+      setResult('Error: ' + message)
+    } finally {
       setLoading(false)
-    }, 1500)
+    }
   }
 
   return (
@@ -44,7 +42,11 @@ Best regards
 
       <main className="grid grid-cols-2 gap-6 p-6">
         <section className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-          <ProposalForm onGenerate={handleGenerate} />
+          <ProposalForm
+            onGenerate={handleGenerate}
+            form={form}
+            setForm={setForm}
+          />
         </section>
 
         <section className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">

@@ -1,9 +1,15 @@
+import type { ProposalFormData } from '../../../types/proposal'
+
 type Props = {
   onGenerate: () => void
+  form: ProposalFormData
+  setForm: (v: ProposalFormData) => void
 }
 
 export default function ProposalForm({
   onGenerate,
+  form,
+  setForm,
 }: Props) {
   return (
     <div className="flex h-full flex-col gap-4">
@@ -13,21 +19,14 @@ export default function ProposalForm({
         </label>
 
         <textarea
-          className="
-            h-64
-            w-full
-            resize-none
-            rounded-xl
-            border
-            border-zinc-700
-            bg-zinc-950
-            p-4
-            text-sm
-            outline-none
-            transition
-            focus:border-zinc-500
-          "
-          placeholder="Paste job description..."
+          value={form.jobDescription}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              jobDescription: e.target.value,
+            })
+          }
+          className="h-56 w-full resize-none rounded-xl border border-zinc-700 bg-zinc-950 p-4 text-sm outline-none"
         />
       </div>
 
@@ -37,18 +36,14 @@ export default function ProposalForm({
         </label>
 
         <input
-          className="
-            w-full
-            rounded-xl
-            border
-            border-zinc-700
-            bg-zinc-950
-            p-3
-            text-sm
-            outline-none
-            focus:border-zinc-500
-          "
-          placeholder="React, TypeScript, Tailwind..."
+          value={form.skills}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              skills: e.target.value,
+            })
+          }
+          className="w-full rounded-xl border border-zinc-700 bg-zinc-950 p-3 text-sm outline-none"
         />
       </div>
 
@@ -58,37 +53,24 @@ export default function ProposalForm({
         </label>
 
         <select
-          className="
-            w-full
-            rounded-xl
-            border
-            border-zinc-700
-            bg-zinc-950
-            p-3
-            text-sm
-            outline-none
-            focus:border-zinc-500
-          "
+          value={form.tone}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              tone: e.target.value as ProposalFormData['tone'],
+            })
+          }
+          className="w-full rounded-xl border border-zinc-700 bg-zinc-950 p-3 text-sm outline-none"
         >
-          <option>Professional</option>
-          <option>Friendly</option>
-          <option>Technical</option>
+          <option value="Professional">Professional</option>
+          <option value="Friendly">Friendly</option>
+          <option value="Technical">Technical</option>
         </select>
       </div>
 
       <button
         onClick={onGenerate}
-        className="
-          mt-auto
-          rounded-xl
-          bg-white
-          px-4
-          py-3
-          font-medium
-          text-black
-          transition
-          hover:opacity-90
-        "
+        className="mt-auto rounded-xl bg-white px-4 py-3 font-medium text-black"
       >
         Generate Proposal
       </button>
