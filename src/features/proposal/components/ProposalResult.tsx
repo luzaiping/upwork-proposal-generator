@@ -34,6 +34,16 @@ export default function ProposalResult({
     )
   }
 
+  const formatResult = (text: string) => {
+    return text
+      // 统一标题层级
+      .replace(/###/g, '##')
+      // 去掉多余空行
+      .replace(/\n{3,}/g, '\n\n')
+      // 修复 bullet 风格
+      .replace(/^\s*-\s/gm, '- ')
+  }
+
   return (
     <div className="flex h-full flex-col overflow-hidden relative">
 
@@ -93,7 +103,7 @@ export default function ProposalResult({
             ),
           }}
         >
-          {result}
+           {formatResult(result)}
         </ReactMarkdown>
 
         {loading && result.length > 0 && (

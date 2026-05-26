@@ -5,119 +5,109 @@ export async function generateProposalStream(params: {
   skills: string
   tone: string
   onDelta: (text: string) => void
+  signal?: AbortSignal
 }) {
   const prompt = `
-  You are a senior freelance frontend engineer specializing in React, TypeScript, and modern SaaS applications.
-  
-  Your task is to write a high-quality Upwork proposal that helps the freelancer win the job.
-  
-  ---
-  
-  ## STRICT OUTPUT FORMAT (IMPORTANT)
-  
-  You MUST output in clean Markdown format:
-  
-  # Proposal Title
-  
-  ## 1. Introduction
-  - Brief self-introduction
-  - Acknowledge client's needs
-  
-  ## 2. Understanding of the Project
-  - Summarize client requirements in your own words
-  - Show understanding of business/problem
-  
-  ## 3. Relevant Experience
-  - List relevant skills and experience
-  - Focus on: ${params.skills}
-  
-  ## 4. Proposed Approach
-  - Explain how you would solve the problem step by step
-  - Be concrete and practical
-  
-  ## 5. Why Me
-  - Highlight advantages (React, TypeScript, frontend architecture, etc.)
-  
-  ## 6. Closing
-  - Short, polite call to action
-  
-  ---
-  
-  ## STYLE REQUIREMENTS
-  
-  - Tone: ${params.tone}
-  - Professional, concise, and confident
-  - Do NOT be overly verbose
-  - Use bullet points where appropriate
-  - Avoid generic filler phrases
-  - Make it sound like a real experienced freelancer wrote it
-  
-  ---
-  
-  ## JOB DESCRIPTION
-  
-  ${params.jobDescription}
-  `
+You are a top 1% senior freelance frontend engineer on Upwork.
 
-  const res = await fetch("https://api.deepseek.com/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "deepseek-chat",
-      messages: [
-        { role: "user", content: prompt },
-      ],
-      temperature: 0.7,
-      stream: true,
-    }),
-  })
+You consistently win high-paying contracts ($50-$100/hour).
 
-  if (!res.ok || !res.body) {
-    const err = await res.text()
-    console.error("❌ API Error Response:", err);
-    throw new Error(err)
-  }
+Your proposals are known for being:
+- concise
+- highly relevant
+- client-focused
+- technically precise
+
+---
+
+STRICT OUTPUT RULES:
+- Must use clean Markdown
+- Must follow exact structure
+- No filler sentences
+- No generic introductions
+
+---
+
+PROPOSAL STRUCTURE:
+
+# Proposal
+
+## Understanding of Needs
+- Restate client problem clearly
+
+## Relevant Experience
+- Match directly with: ${params.skills}
+
+## Solution Approach
+- Step-by-step implementation plan
+
+## Value Proposition
+- Why you are the best fit
+
+## Closing
+- Short call to action
+
+---
+
+TONE: ${params.tone}
+
+JOB DESCRIPTION:
+${params.jobDescription}
+`
+
+  const res = await fetch(
+    "https://api.deepseek.com/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "deepseek-chat",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7,
+        stream: true,
+      }),
+      signal: params.signal,
+    }
+  )
+
+  if (!res.body) return
 
   const reader = res.body.getReader()
   const decoder = new TextDecoder("utf-8")
   let buffer = ""
 
-  while (true) {
-    const { value, done } = await reader.read()
-    if (done) {
-      break
-    }
+  try {
+    while (true) {
+      const { value, done } = await reader.read()
+      if (done) break
 
-    const decoded = decoder.decode(value, { stream: true })
-    
-    buffer += decoded
-    const lines = buffer.split("\n")
-    buffer = lines.pop() || ""
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split("\n")
+      buffer = lines.pop() || ""
 
-    for (const line of lines) {
-      const trimmedLine = line.trim()
-      if (!trimmedLine.startsWith("data:")) continue
-      
-      const jsonStr = trimmedLine.replace("data:", "").trim()
-      if (jsonStr === "[DONE]") {
-        continue
-      }
+      for (const line of lines) {
+        const trimmed = line.trim()
+        if (!trimmed.startsWith("data:")) continue
 
-      try {
-        const json = JSON.parse(jsonStr)
-        const delta = json.choices?.[0]?.delta?.content
-        
-        if (delta) {
-          params.onDelta(delta)
-        } else if (json.choices?.[0]?.delta) {
-          console.log("⚠️ Received delta without content:", json.choices[0].delta);
+        const jsonStr = trimmed.replace("data:", "").trim()
+        if (jsonStr === "[DONE]") break
+
+        try {
+          const json = JSON.parse(jsonStr)
+          const delta = json.choices?.[0]?.delta?.content
+
+          if (delta) {
+            params.onDelta(delta)
+          }
+        } catch {
+          // ignore parse errors
         }
-      } catch (e) {
-        console.warn("⚠️ JSON parse error for line:", trimmedLine.substring(0, 200), e);
       }
     }
+  } catch (err) {
+    console.log("stream stopped:", err)
   }
 }

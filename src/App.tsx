@@ -9,6 +9,8 @@ import type { ProposalFormData } from './types/proposal'
 export default function App() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState('')
+  const [abortController, setAbortController] =
+    useState<AbortController | null>(null)
 
   const [form, setForm] = useState<ProposalFormData>({
     jobDescription: '',
@@ -17,37 +19,44 @@ export default function App() {
   })
 
   const handleGenerate = async () => {
+    const controller = new AbortController()
+    setAbortController(controller)
+
     try {
       setLoading(true)
       setResult('')
 
       await generateProposalStream({
         ...form,
+        signal: controller.signal,
         onDelta: (chunk) => {
           setResult((prev) => prev + chunk)
         },
       })
-    } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : 'Unknown error'
-      setResult('Error: ' + message)
+    } catch (e) {
+      console.log(e)
     } finally {
       setLoading(false)
     }
   }
 
+  const handleStop = () => {
+    abortController?.abort()
+    setLoading(false)
+  }
+
   return (
     <div className="h-screen flex flex-col bg-zinc-950 text-white overflow-hidden">
-      {/* Header（固定高度） */}
+
       <header className="h-14.25 flex items-center border-b border-zinc-800 px-6">
         <h1 className="text-xl font-semibold">
           AI Proposal Generator
         </h1>
       </header>
 
-      {/* Main：关键修复点 */}
       <main className="flex-1 grid grid-cols-2 gap-6 p-6 overflow-hidden">
-        
-        {/* Left Panel */}
+
+        {/* Left */}
         <section className="flex flex-col h-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
           <ProposalForm
             onGenerate={handleGenerate}
@@ -56,7 +65,7 @@ export default function App() {
           />
         </section>
 
-        {/* Right Panel */}
+        {/* Right */}
         <section className="flex flex-col h-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
           <ProposalResult
             result={result}
@@ -65,6 +74,16 @@ export default function App() {
         </section>
 
       </main>
+
+      {/* Floating stop button (optional UX upgrade) */}
+      {loading && (
+        <button
+          onClick={handleStop}
+          className="fixed bottom-6 right-6 rounded-full bg-red-500 px-4 py-2 text-sm text-white shadow-lg"
+        >
+          Stop
+        </button>
+      )}
     </div>
   )
 }
