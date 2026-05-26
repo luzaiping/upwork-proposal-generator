@@ -1,9 +1,10 @@
 const DEEPSEEK_API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY
 
-export async function generateProposal(params: {
+export async function generateProposalStream(params: {
   jobDescription: string
   skills: string
   tone: string
+  onDelta: (text: string) => void
 }) {
   const prompt = `
 You are a senior freelance frontend developer.
@@ -17,11 +18,8 @@ Requirements:
 Job Description:
 ${params.jobDescription}
 
-Output format:
-- Professional proposal
-- Clear structure
-- No markdown symbols like ** or ###
-- Natural human tone
+Output:
+A professional Upwork proposal.
 `
 
   const res = await fetch("https://api.deepseek.com/chat/completions", {
@@ -33,23 +31,56 @@ Output format:
     body: JSON.stringify({
       model: "deepseek-chat",
       messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
+        { role: "user", content: prompt },
       ],
       temperature: 0.7,
+      stream: true,
     }),
   })
 
-  if (!res.ok) {
+  if (!res.ok || !res.body) {
     const err = await res.text()
+    console.error("❌ API Error Response:", err);
     throw new Error(err)
   }
 
-  const data = await res.json()
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder("utf-8")
+  let buffer = ""
 
-  console.log('[DEEPSEEK RAW RESPONSE]', data)
+  while (true) {
+    const { value, done } = await reader.read()
+    if (done) {
+      break
+    }
 
-  return data.choices?.[0]?.message?.content ?? ""
+    const decoded = decoder.decode(value, { stream: true })
+    
+    buffer += decoded
+    const lines = buffer.split("\n")
+    buffer = lines.pop() || ""
+
+    for (const line of lines) {
+      const trimmedLine = line.trim()
+      if (!trimmedLine.startsWith("data:")) continue
+      
+      const jsonStr = trimmedLine.replace("data:", "").trim()
+      if (jsonStr === "[DONE]") {
+        continue
+      }
+
+      try {
+        const json = JSON.parse(jsonStr)
+        const delta = json.choices?.[0]?.delta?.content
+        
+        if (delta) {
+          params.onDelta(delta)
+        } else if (json.choices?.[0]?.delta) {
+          console.log("⚠️ Received delta without content:", json.choices[0].delta);
+        }
+      } catch (e) {
+        console.warn("⚠️ JSON parse error for line:", trimmedLine.substring(0, 200), e);
+      }
+    }
+  }
 }
