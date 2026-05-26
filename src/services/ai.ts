@@ -7,20 +7,57 @@ export async function generateProposalStream(params: {
   onDelta: (text: string) => void
 }) {
   const prompt = `
-You are a senior freelance frontend developer.
-
-Generate a high-quality Upwork proposal.
-
-Requirements:
-- Tone: ${params.tone}
-- Skills: ${params.skills}
-
-Job Description:
-${params.jobDescription}
-
-Output:
-A professional Upwork proposal.
-`
+  You are a senior freelance frontend engineer specializing in React, TypeScript, and modern SaaS applications.
+  
+  Your task is to write a high-quality Upwork proposal that helps the freelancer win the job.
+  
+  ---
+  
+  ## STRICT OUTPUT FORMAT (IMPORTANT)
+  
+  You MUST output in clean Markdown format:
+  
+  # Proposal Title
+  
+  ## 1. Introduction
+  - Brief self-introduction
+  - Acknowledge client's needs
+  
+  ## 2. Understanding of the Project
+  - Summarize client requirements in your own words
+  - Show understanding of business/problem
+  
+  ## 3. Relevant Experience
+  - List relevant skills and experience
+  - Focus on: ${params.skills}
+  
+  ## 4. Proposed Approach
+  - Explain how you would solve the problem step by step
+  - Be concrete and practical
+  
+  ## 5. Why Me
+  - Highlight advantages (React, TypeScript, frontend architecture, etc.)
+  
+  ## 6. Closing
+  - Short, polite call to action
+  
+  ---
+  
+  ## STYLE REQUIREMENTS
+  
+  - Tone: ${params.tone}
+  - Professional, concise, and confident
+  - Do NOT be overly verbose
+  - Use bullet points where appropriate
+  - Avoid generic filler phrases
+  - Make it sound like a real experienced freelancer wrote it
+  
+  ---
+  
+  ## JOB DESCRIPTION
+  
+  ${params.jobDescription}
+  `
 
   const res = await fetch("https://api.deepseek.com/chat/completions", {
     method: "POST",

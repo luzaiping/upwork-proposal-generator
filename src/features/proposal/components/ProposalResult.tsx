@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 
 type Props = {
   result: string
@@ -20,9 +21,7 @@ export default function ProposalResult({
 
   const handleCopy = async () => {
     if (!result) return
-
     await navigator.clipboard.writeText(result)
-
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
   }
@@ -60,12 +59,42 @@ export default function ProposalResult({
         </div>
       )}
 
-      {/* content */}
+      {/* markdown content */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto whitespace-pre-wrap text-sm leading-7 text-zinc-200 pr-2"
+        className="flex-1 overflow-y-auto pr-2 text-sm leading-7 text-zinc-200"
       >
-        {result}
+        <ReactMarkdown
+          components={{
+            h1: ({ children }) => (
+              <h1 className="text-lg font-bold mt-4 mb-2 text-white">
+                {children}
+              </h1>
+            ),
+            h2: ({ children }) => (
+              <h2 className="text-base font-semibold mt-3 mb-2 text-white">
+                {children}
+              </h2>
+            ),
+            p: ({ children }) => (
+              <p className="mb-3 text-zinc-200 leading-7">
+                {children}
+              </p>
+            ),
+            ul: ({ children }) => (
+              <ul className="list-disc pl-5 mb-3 space-y-1">
+                {children}
+              </ul>
+            ),
+            li: ({ children }) => (
+              <li className="text-zinc-300">
+                {children}
+              </li>
+            ),
+          }}
+        >
+          {result}
+        </ReactMarkdown>
 
         {loading && result.length > 0 && (
           <span className="inline-block w-1 h-4 bg-emerald-400 animate-pulse ml-1" />
