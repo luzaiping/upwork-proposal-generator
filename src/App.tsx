@@ -3,12 +3,19 @@ import { useState } from 'react'
 import ProposalForm from './features/proposal/components/ProposalForm'
 import ProposalResult from './features/proposal/components/ProposalResult'
 
-import { generateProposalStream } from './services/ai'
-import type { ProposalFormData } from './types/proposal'
+import { generateProposal } from './services/ai'
+
+import type {
+  ProposalFormData,
+  ProposalResultData,
+} from './types/proposal'
 
 export default function App() {
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState('')
+
+  const [result, setResult] =
+    useState<ProposalResultData | null>(null)
+
   const [abortController, setAbortController] =
     useState<AbortController | null>(null)
 
@@ -20,19 +27,18 @@ export default function App() {
 
   const handleGenerate = async () => {
     const controller = new AbortController()
+
     setAbortController(controller)
 
     try {
       setLoading(true)
-      setResult('')
 
-      await generateProposalStream({
+      const response = await generateProposal({
         ...form,
         signal: controller.signal,
-        onDelta: (chunk) => {
-          setResult((prev) => prev + chunk)
-        },
       })
+
+      setResult(response)
     } catch (e) {
       console.log(e)
     } finally {
@@ -56,7 +62,6 @@ export default function App() {
 
       <main className="flex-1 grid grid-cols-2 gap-6 p-6 overflow-hidden">
 
-        {/* Left */}
         <section className="flex flex-col h-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
           <ProposalForm
             onGenerate={handleGenerate}
@@ -65,7 +70,6 @@ export default function App() {
           />
         </section>
 
-        {/* Right */}
         <section className="flex flex-col h-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
           <ProposalResult
             result={result}
@@ -75,7 +79,6 @@ export default function App() {
 
       </main>
 
-      {/* Floating stop button (optional UX upgrade) */}
       {loading && (
         <button
           onClick={handleStop}
