@@ -1,6 +1,6 @@
-import type { ProposalFormData } from '../types/proposal';
+import type { Job } from '../types/job';
 
-export function buildProposalPrompt(params: ProposalFormData) {
+export function buildProposalPrompt(params: Job) {
   return `
 You are a top 1% senior freelance frontend engineer on Upwork.
 
@@ -35,6 +35,6 @@ Skills:
 ${params.skills}
 
 Job Description:
-${params.jobDescription}
+${params.description}
 `;
 }

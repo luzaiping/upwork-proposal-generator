@@ -1,11 +1,12 @@
-import type { ProposalResultData, ProposalTone } from '../types/proposal';
+import type { ProposalTone } from '../types/job';
+import type { ProposalResultData } from '../types/proposal';
 import { buildProposalPrompt } from '../prompts/proposal';
 
 const DEEPSEEK_API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY;
 
 export async function generateProposal(params: {
-  jobDescription: string;
-  skills: string;
+  description: string;
+  skills: string[];
   tone: ProposalTone;
   signal?: AbortSignal;
 }): Promise<ProposalResultData> {
