@@ -3,14 +3,19 @@ import { useState } from 'react';
 import ProposalForm from './features/proposal/components/ProposalForm';
 import ProposalResult from './features/proposal/components/ProposalResult';
 import { generateProposal } from './services/ai';
+import { analyzeJob } from './services/analysis';
 
-import type { ProposalFormData, ProposalResultData } from './types/proposal';
+import type { ProposalFormData, ProposalContent } from './types/proposal';
+import type { JobAnalysis } from './types/job';
 import { mapFormToJob } from './utils/mapFormToJob';
 
 export default function App() {
   const [loading, setLoading] = useState(false);
 
-  const [result, setResult] = useState<ProposalResultData | null>(null);
+  const [analysis, setAnalysis] = useState<JobAnalysis | null>(null);
+
+  const [proposalContent, setProposalContent] =
+    useState<ProposalContent | null>(null);
 
   const [abortController, setAbortController] =
     useState<AbortController | null>(null);
@@ -28,15 +33,27 @@ export default function App() {
 
     try {
       setLoading(true);
+      setAnalysis(null);
+      setProposalContent(null);
+
       const job = mapFormToJob(form);
-      const response = await generateProposal({
+
+      // 1. analysis
+      const analysisResult = await analyzeJob(job);
+      setAnalysis(analysisResult);
+
+      // 2. proposal
+      await generateProposal({
         ...job,
         signal: controller.signal,
+        onChunk: (content) => setProposalContent(content),
       });
-
-      setResult(response);
     } catch (e) {
-      console.log(e);
+      if (e instanceof DOMException && e.name === 'AbortError') {
+        // user stopped manually, do nothing
+      } else {
+        console.error(e);
+      }
     } finally {
       setLoading(false);
     }
@@ -63,7 +80,11 @@ export default function App() {
         </section>
 
         <section className="flex flex-col h-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-          <ProposalResult result={result} loading={loading} />
+          <ProposalResult
+            analysis={analysis}
+            proposalContent={proposalContent}
+            loading={loading}
+          />
         </section>
       </main>
 

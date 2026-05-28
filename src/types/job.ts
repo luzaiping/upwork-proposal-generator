@@ -1,13 +1,27 @@
-export type ProposalTone =
-  | 'Professional'
-  | 'Friendly'
-  | 'Confident'
+export type ProposalTone = 'Professional' | 'Friendly' | 'Technical';
+
+export type Recommendation = 'high' | 'medium' | 'low';
 
 export type Job = {
-  title?: string
-  description: string
+  title?: string;
 
-  skills: string[]
+  description: string;
 
-  tone: ProposalTone
-}
+  skills: string[];
+
+  tone: ProposalTone;
+};
+
+export type JobAnalysis = {
+  difficulty: number;
+
+  matchScore: number;
+
+  requiredSkills: string[];
+
+  missingSkills: string[];
+
+  strategy: string;
+
+  recommendation: Recommendation;
+};

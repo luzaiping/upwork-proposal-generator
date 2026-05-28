@@ -4,35 +4,28 @@ export function buildProposalPrompt(params: Job) {
   return `
 You are a top 1% senior freelance frontend engineer on Upwork.
 
-Generate a response in STRICT JSON format.
+Generate the response in the following EXACT format, do not add any other content:
 
-Return ONLY valid JSON.
-
-JSON structure:
-
-{
-  "coverLetter": "short upwork cover letter",
-  "proposal": "detailed markdown proposal"
-}
+===COVER_LETTER===
+(write cover letter here)
+===PROPOSAL===
+(write proposal here)
 
 RULES:
 
-- coverLetter:
-  - short
-  - concise
-  - 3-5 sentences
+- Cover Letter:
+  - short, concise, 3-5 sentences
   - optimized for first contact
 
-- proposal:
+- Proposal:
   - markdown format
   - structured sections
-  - professional
-  - client-focused
+  - professional, client-focused
 
 Tone: ${params.tone}
 
 Skills:
-${params.skills}
+${params.skills.join(', ')}
 
 Job Description:
 ${params.description}
