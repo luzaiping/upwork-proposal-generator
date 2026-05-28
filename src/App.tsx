@@ -11,6 +11,8 @@ import type { JobScore } from './types/scoring';
 import type { JobAnalysis } from './types/job';
 import { estimateCompetition } from './services/competition';
 import type { CompetitionEstimation } from './types/scoring';
+import { buildDecision } from './services/decision';
+import type { DecisionSummary } from './types/scoring';
 import { mapFormToJob } from './utils/mapFormToJob';
 
 export default function App() {
@@ -29,6 +31,8 @@ export default function App() {
   const [competition, setCompetition] = useState<CompetitionEstimation | null>(
     null,
   );
+
+  const [decision, setDecision] = useState<DecisionSummary | null>(null);
 
   const [abortController, setAbortController] =
     useState<AbortController | null>(null);
@@ -50,6 +54,7 @@ export default function App() {
       setAnalysis(null);
       setJobScore(null);
       setCompetition(null);
+      setDecision(null);
       setProposalContent(null);
 
       const job = mapFormToJob(form);
@@ -58,7 +63,7 @@ export default function App() {
       const analysisResult = await Promise.race([
         analyzeJob(job),
         new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Analysis timeout')), 30000)
+          setTimeout(() => reject(new Error('Analysis timeout')), 30000),
         ),
       ]);
       setAnalysis(analysisResult);
@@ -77,7 +82,15 @@ export default function App() {
       const competitionResult = estimateCompetition(job.description);
       setCompetition(competitionResult);
 
-      // 4. proposal
+      // 4. decision
+      const decisionResult = buildDecision(
+        analysisResult,
+        score,
+        competitionResult,
+      );
+      setDecision(decisionResult);
+
+      // 5. proposal
       await generateProposal({
         ...job,
         signal: controller.signal,
@@ -122,6 +135,7 @@ export default function App() {
             analysis={analysis}
             jobScore={jobScore}
             competition={competition}
+            decision={decision}
             proposalContent={proposalContent}
             loading={loading}
             loadingStep={loadingStep}

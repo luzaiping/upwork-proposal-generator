@@ -4,13 +4,14 @@ import ReactMarkdown from 'react-markdown';
 import type { ProposalContent } from '../../../types/proposal';
 import type { JobAnalysis } from '../../../types/job';
 import type { JobScore } from '../../../types/scoring';
-
 import type { CompetitionEstimation } from '../../../types/scoring';
+import type { DecisionSummary } from '../../../types/scoring';
 
 type Props = {
   analysis: JobAnalysis | null;
   jobScore: JobScore | null;
   competition: CompetitionEstimation | null;
+  decision: DecisionSummary | null;
   proposalContent: ProposalContent | null;
   loading: boolean;
   loadingStep: 'idle' | 'analyzing' | 'generating';
@@ -20,9 +21,10 @@ export default function ProposalResult({
   analysis,
   jobScore,
   competition,
+  decision,
   proposalContent,
   loading,
-  loadingStep
+  loadingStep,
 }: Props) {
   const [copied, setCopied] = useState<string | null>(null);
 
@@ -64,6 +66,83 @@ export default function ProposalResult({
 
       {/* content */}
       <div className="flex-1 overflow-y-auto space-y-6 pr-2">
+        {/* decision */}
+        {decision && (
+          <section
+            className={`rounded-xl border p-4 ${
+              decision.verdict === 'apply'
+                ? 'border-emerald-500/40 bg-emerald-500/10'
+                : decision.verdict === 'skip'
+                  ? 'border-red-500/40 bg-red-500/10'
+                  : 'border-yellow-500/40 bg-yellow-500/10'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-white">Decision</h2>
+              <span
+                className={`text-xs font-bold px-2 py-1 rounded-md ${
+                  decision.verdict === 'apply'
+                    ? 'bg-emerald-500/20 text-emerald-400'
+                    : decision.verdict === 'skip'
+                      ? 'bg-red-500/20 text-red-400'
+                      : 'bg-yellow-500/20 text-yellow-400'
+                }`}
+              >
+                {decision.verdict.toUpperCase()}
+              </span>
+            </div>
+
+            <p className="text-sm text-zinc-300 mb-3">{decision.summary}</p>
+
+            <div className="text-xs text-zinc-500 mb-4">
+              Confidence:{' '}
+              <span className="text-white font-medium">
+                {decision.confidence}%
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {decision.highlights.length > 0 && (
+                <div>
+                  <div className="text-xs text-emerald-400 mb-2 font-medium">
+                    Highlights
+                  </div>
+                  <ul className="space-y-1">
+                    {decision.highlights.map((h, i) => (
+                      <li
+                        key={i}
+                        className="flex items-start gap-2 text-xs text-zinc-400"
+                      >
+                        <span className="text-emerald-500 mt-0.5">✓</span>
+                        {h}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {decision.concerns.length > 0 && (
+                <div>
+                  <div className="text-xs text-red-400 mb-2 font-medium">
+                    Concerns
+                  </div>
+                  <ul className="space-y-1">
+                    {decision.concerns.map((c, i) => (
+                      <li
+                        key={i}
+                        className="flex items-start gap-2 text-xs text-zinc-400"
+                      >
+                        <span className="text-red-500 mt-0.5">✗</span>
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+        
         {/* Analysis */}
         {analysis && (
           <section className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">

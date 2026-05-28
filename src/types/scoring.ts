@@ -4,6 +4,16 @@ export type CompetitionLevel = 'low' | 'medium' | 'high';
 export type MarketType = 'commodity' | 'specialized' | 'niche';
 export type DifferentiationPotential = 'low' | 'medium' | 'high';
 
+export type Verdict = 'apply' | 'consider' | 'skip';
+
+export type DecisionSummary = {
+  verdict: Verdict;
+  confidence: number;
+  summary: string;
+  highlights: string[];
+  concerns: string[];
+};
+
 export type JobScore = {
   overallScore: number;
   applyConfidence: number;
