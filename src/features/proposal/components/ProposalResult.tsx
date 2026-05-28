@@ -6,12 +6,14 @@ import type { JobAnalysis } from '../../../types/job';
 import type { JobScore } from '../../../types/scoring';
 import type { CompetitionEstimation } from '../../../types/scoring';
 import type { DecisionSummary } from '../../../types/scoring';
+import type { PriceEvaluation } from '../../../types/job';
 
 type Props = {
   analysis: JobAnalysis | null;
   jobScore: JobScore | null;
   competition: CompetitionEstimation | null;
   decision: DecisionSummary | null;
+  priceEval: PriceEvaluation | null;
   proposalContent: ProposalContent | null;
   loading: boolean;
   loadingStep: 'idle' | 'analyzing' | 'generating';
@@ -22,6 +24,7 @@ export default function ProposalResult({
   jobScore,
   competition,
   decision,
+  priceEval,
   proposalContent,
   loading,
   loadingStep,
@@ -142,7 +145,87 @@ export default function ProposalResult({
             </div>
           </section>
         )}
-        
+
+        {/* price */}
+        {priceEval && (
+          <section
+            className={`rounded-xl border p-4 ${
+              priceEval.budgetLevel === 'low'
+                ? 'border-red-500/40 bg-red-500/10'
+                : priceEval.budgetLevel === 'high'
+                  ? 'border-emerald-500/40 bg-emerald-500/10'
+                  : 'border-zinc-800 bg-zinc-950/40'
+            }`}
+          >
+            <h2 className="mb-4 text-sm font-semibold text-white">
+              Price Evaluation
+            </h2>
+
+            <div className="space-y-3 text-sm text-zinc-300">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-lg bg-zinc-900 p-3">
+                  <div className="text-xs text-zinc-500 mb-1">
+                    Recommended Rate
+                  </div>
+                  <div className="text-base font-bold text-white">
+                    ${priceEval.recommendedRate.min}–$
+                    {priceEval.recommendedRate.max}/hr
+                  </div>
+                </div>
+
+                {priceEval.clientBudgetRate && (
+                  <div className="rounded-lg bg-zinc-900 p-3">
+                    <div className="text-xs text-zinc-500 mb-1">
+                      Client Effective Rate
+                    </div>
+                    <div
+                      className={`text-base font-bold ${
+                        priceEval.budgetLevel === 'low'
+                          ? 'text-red-400'
+                          : priceEval.budgetLevel === 'high'
+                            ? 'text-emerald-400'
+                            : 'text-white'
+                      }`}
+                    >
+                      ${priceEval.clientBudgetRate}/hr
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <span className="text-zinc-500">Budget Level:</span>{' '}
+                <span
+                  className={
+                    priceEval.budgetLevel === 'low'
+                      ? 'text-red-400'
+                      : priceEval.budgetLevel === 'high'
+                        ? 'text-emerald-400'
+                        : 'text-yellow-400'
+                  }
+                >
+                  {priceEval.budgetLevel}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-zinc-500">Reasonable:</span>{' '}
+                <span
+                  className={
+                    priceEval.isReasonable ? 'text-emerald-400' : 'text-red-400'
+                  }
+                >
+                  {priceEval.isReasonable ? 'Yes' : 'No'}
+                </span>
+              </div>
+
+              <p className="text-xs text-zinc-400 leading-5">
+                {priceEval.summary}
+              </p>
+            </div>
+          </section>
+        )}
+
         {/* Analysis */}
         {analysis && (
           <section className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">

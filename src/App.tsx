@@ -13,6 +13,8 @@ import { estimateCompetition } from './services/competition';
 import type { CompetitionEstimation } from './types/scoring';
 import { buildDecision } from './services/decision';
 import type { DecisionSummary } from './types/scoring';
+import { evaluatePrice } from './services/pricing';
+import type { PriceEvaluation } from './types/job';
 import { mapFormToJob } from './utils/mapFormToJob';
 
 export default function App() {
@@ -33,6 +35,8 @@ export default function App() {
   );
 
   const [decision, setDecision] = useState<DecisionSummary | null>(null);
+
+  const [priceEval, setPriceEval] = useState<PriceEvaluation | null>(null);
 
   const [abortController, setAbortController] =
     useState<AbortController | null>(null);
@@ -55,11 +59,12 @@ export default function App() {
       setJobScore(null);
       setCompetition(null);
       setDecision(null);
+      setPriceEval(null);
       setProposalContent(null);
 
       const job = mapFormToJob(form);
 
-      // 1. analysis
+      // analysis
       const analysisResult = await Promise.race([
         analyzeJob(job),
         new Promise<never>((_, reject) =>
@@ -69,7 +74,7 @@ export default function App() {
       setAnalysis(analysisResult);
       setLoadingStep('generating');
 
-      // 2. score
+      // score
       const score = scoreJob(
         analysisResult,
         job.description,
@@ -78,11 +83,15 @@ export default function App() {
       );
       setJobScore(score);
 
-      // 3. competition
+      // competition
       const competitionResult = estimateCompetition(job.description);
       setCompetition(competitionResult);
 
-      // 4. decision
+      // price
+      const priceResult = evaluatePrice(job, analysisResult);
+      setPriceEval(priceResult);
+
+      // decision
       const decisionResult = buildDecision(
         analysisResult,
         score,
@@ -90,7 +99,7 @@ export default function App() {
       );
       setDecision(decisionResult);
 
-      // 5. proposal
+      // proposal
       await generateProposal({
         ...job,
         signal: controller.signal,
@@ -136,6 +145,7 @@ export default function App() {
             jobScore={jobScore}
             competition={competition}
             decision={decision}
+            priceEval={priceEval}
             proposalContent={proposalContent}
             loading={loading}
             loadingStep={loadingStep}

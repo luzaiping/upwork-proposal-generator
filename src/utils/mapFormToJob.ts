@@ -24,9 +24,12 @@ export function mapFormToJob(form: ProposalFormData): Job {
   return {
     title: form.jobTitle || undefined,
     description: form.jobDescription,
-    skills: form.skills ? form.skills.split(',').map(s => s.trim()) : [],
+    skills: form.skills ? form.skills.split(',').map((s) => s.trim()) : [],
     tone: form.tone,
     budget,
     clientHistory,
+    targetHourlyRate: form.targetHourlyRate
+      ? parseFloat(form.targetHourlyRate)
+      : 40,
   };
 }

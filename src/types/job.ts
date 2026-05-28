@@ -21,6 +21,7 @@ export type Job = {
   tone: ProposalTone;
   budget?: Budget;
   clientHistory?: ClientHistory;
+  targetHourlyRate?: number;
 };
 
 export type JobAnalysis = {
@@ -30,4 +31,12 @@ export type JobAnalysis = {
   missingSkills: string[];
   strategy: string;
   recommendation: Recommendation;
+};
+
+export type PriceEvaluation = {
+  isReasonable: boolean;
+  budgetLevel: 'low' | 'mid' | 'high';
+  recommendedRate: { min: number; max: number };
+  clientBudgetRate?: number;
+  summary: string;
 };

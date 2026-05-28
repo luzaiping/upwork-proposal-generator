@@ -183,6 +183,21 @@ export default function ProposalForm({ onGenerate, form, setForm }: Props) {
                   />
                 </div>
               </div>
+
+              <div>
+                <label className="mb-2 block text-sm text-zinc-400">
+                  Target Hourly Rate (USD)
+                </label>
+                <input
+                  value={form.targetHourlyRate || ''}
+                  onChange={(e) =>
+                    setForm({ ...form, targetHourlyRate: e.target.value })
+                  }
+                  placeholder="Default: $40/hr"
+                  type="number"
+                  className="w-full rounded-xl border border-zinc-700 bg-zinc-950 p-3 text-sm outline-none"
+                />
+              </div>
             </div>
           )}
         </div>
