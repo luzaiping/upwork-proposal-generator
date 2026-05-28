@@ -38,6 +38,8 @@ export default function App() {
 
   const [priceEval, setPriceEval] = useState<PriceEvaluation | null>(null);
 
+  const [showSkipConfirm, setShowSkipConfirm] = useState(false);
+
   const [abortController, setAbortController] =
     useState<AbortController | null>(null);
 
@@ -100,6 +102,11 @@ export default function App() {
       setDecision(decisionResult);
 
       // proposal
+      if (decisionResult.verdict === 'skip') {
+        setShowSkipConfirm(true);
+        return;
+      }
+
       await generateProposal({
         ...job,
         signal: controller.signal,
@@ -110,6 +117,31 @@ export default function App() {
         // user stopped manually
       } else if (e instanceof Error && e.message === 'Analysis timeout') {
         alert('Analysis timed out, please try again.');
+      } else {
+        console.error(e);
+      }
+    } finally {
+      setLoading(false);
+      setLoadingStep('idle');
+    }
+  };
+
+  const handleForceGenerate = async () => {
+    setShowSkipConfirm(false);
+    const controller = new AbortController();
+    setAbortController(controller);
+    setLoading(true);
+    setLoadingStep('generating');
+    try {
+      const job = mapFormToJob(form);
+      await generateProposal({
+        ...job,
+        signal: controller.signal,
+        onChunk: (content) => setProposalContent(content),
+      });
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') {
+        // user stopped
       } else {
         console.error(e);
       }
@@ -160,6 +192,34 @@ export default function App() {
         >
           Stop
         </button>
+      )}
+
+      {showSkipConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="rounded-2xl border border-zinc-700 bg-zinc-900 p-6 w-80 space-y-4">
+            <h3 className="text-sm font-semibold text-white">
+              Not Recommended
+            </h3>
+            <p className="text-sm text-zinc-400">
+              The analysis suggests skipping this job. Do you still want to
+              generate a proposal?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSkipConfirm(false)}
+                className="flex-1 rounded-xl border border-zinc-700 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleForceGenerate}
+                className="flex-1 rounded-xl bg-white py-2 text-sm font-medium text-black"
+              >
+                Generate Anyway
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
