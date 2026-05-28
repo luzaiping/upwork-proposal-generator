@@ -1,3 +1,5 @@
+import type { TimingAdvice } from "./job";
+
 export type RiskLevel = 'low' | 'medium' | 'high';
 export type CompetitionLevel = 'low' | 'medium' | 'high';
 
@@ -12,6 +14,7 @@ export type DecisionSummary = {
   summary: string;
   highlights: string[];
   concerns: string[];
+  timingAdvice: TimingAdvice | null;
 };
 
 export type JobScore = {

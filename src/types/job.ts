@@ -22,6 +22,7 @@ export type Job = {
   budget?: Budget;
   clientHistory?: ClientHistory;
   targetHourlyRate?: number;
+  jobPostedAt?: string;
 };
 
 export type JobAnalysis = {
@@ -39,4 +40,10 @@ export type PriceEvaluation = {
   recommendedRate: { min: number; max: number };
   clientBudgetRate?: number;
   summary: string;
+};
+
+export type TimingAdvice = {
+  hoursElapsed: number;
+  windowStatus: 'open' | 'narrowing' | 'closed';
+  advice: string;
 };

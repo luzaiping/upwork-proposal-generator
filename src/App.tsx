@@ -15,6 +15,7 @@ import { buildDecision } from './services/decision';
 import type { DecisionSummary } from './types/scoring';
 import { evaluatePrice } from './services/pricing';
 import type { PriceEvaluation } from './types/job';
+import { evaluateTiming } from './services/timing';
 import { mapFormToJob } from './utils/mapFormToJob';
 
 export default function App() {
@@ -98,6 +99,7 @@ export default function App() {
         analysisResult,
         score,
         competitionResult,
+        evaluateTiming(job.jobPostedAt),
       );
       setDecision(decisionResult);
 

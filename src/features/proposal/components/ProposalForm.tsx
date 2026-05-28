@@ -94,6 +94,20 @@ export default function ProposalForm({ onGenerate, form, setForm }: Props) {
 
               <div>
                 <label className="mb-2 block text-sm text-zinc-400">
+                  Job Posted At
+                </label>
+                <input
+                  value={form.jobPostedAt || ''}
+                  onChange={(e) =>
+                    setForm({ ...form, jobPostedAt: e.target.value })
+                  }
+                  type="datetime-local"
+                  className="w-full rounded-xl border border-zinc-700 bg-zinc-950 p-3 text-sm outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm text-zinc-400">
                   Budget
                 </label>
                 <select

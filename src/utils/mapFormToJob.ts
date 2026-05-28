@@ -31,5 +31,6 @@ export function mapFormToJob(form: ProposalFormData): Job {
     targetHourlyRate: form.targetHourlyRate
       ? parseFloat(form.targetHourlyRate)
       : 40,
+    jobPostedAt: form.jobPostedAt || undefined,
   };
 }

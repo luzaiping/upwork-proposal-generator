@@ -13,6 +13,7 @@ export type ProposalFormData = {
   clientHireRate?: string;
   clientAvgRating?: string;
   targetHourlyRate?: string;
+  jobPostedAt?: string;
 };
 
 export type ProposalContent = {
