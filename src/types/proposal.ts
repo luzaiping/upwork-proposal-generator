@@ -4,6 +4,14 @@ export type ProposalFormData = {
   jobDescription: string;
   skills: string;
   tone: ProposalTone;
+  jobTitle?: string;
+  budgetType?: 'fixed' | 'hourly';
+  budgetAmount?: string;
+  budgetMin?: string;
+  budgetMax?: string;
+  clientTotalJobs?: string;
+  clientHireRate?: string;
+  clientAvgRating?: string;
 };
 
 export type ProposalContent = {

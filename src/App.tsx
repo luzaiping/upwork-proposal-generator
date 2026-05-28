@@ -15,6 +15,9 @@ import { mapFormToJob } from './utils/mapFormToJob';
 
 export default function App() {
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState<
+    'idle' | 'analyzing' | 'generating'
+  >('idle');
 
   const [analysis, setAnalysis] = useState<JobAnalysis | null>(null);
 
@@ -43,6 +46,7 @@ export default function App() {
 
     try {
       setLoading(true);
+      setLoadingStep('analyzing');
       setAnalysis(null);
       setJobScore(null);
       setCompetition(null);
@@ -51,11 +55,22 @@ export default function App() {
       const job = mapFormToJob(form);
 
       // 1. analysis
-      const analysisResult = await analyzeJob(job);
+      const analysisResult = await Promise.race([
+        analyzeJob(job),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Analysis timeout')), 30000)
+        ),
+      ]);
       setAnalysis(analysisResult);
+      setLoadingStep('generating');
 
       // 2. score
-      const score = scoreJob(analysisResult, job.description);
+      const score = scoreJob(
+        analysisResult,
+        job.description,
+        job.budget,
+        job.clientHistory,
+      );
       setJobScore(score);
 
       // 3. competition
@@ -70,12 +85,15 @@ export default function App() {
       });
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') {
-        // user stopped manually, do nothing
+        // user stopped manually
+      } else if (e instanceof Error && e.message === 'Analysis timeout') {
+        alert('Analysis timed out, please try again.');
       } else {
         console.error(e);
       }
     } finally {
       setLoading(false);
+      setLoadingStep('idle');
     }
   };
 
@@ -106,6 +124,7 @@ export default function App() {
             competition={competition}
             proposalContent={proposalContent}
             loading={loading}
+            loadingStep={loadingStep}
           />
         </section>
       </main>

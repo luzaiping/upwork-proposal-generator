@@ -13,6 +13,7 @@ type Props = {
   competition: CompetitionEstimation | null;
   proposalContent: ProposalContent | null;
   loading: boolean;
+  loadingStep: 'idle' | 'analyzing' | 'generating';
 };
 
 export default function ProposalResult({
@@ -21,6 +22,7 @@ export default function ProposalResult({
   competition,
   proposalContent,
   loading,
+  loadingStep
 }: Props) {
   const [copied, setCopied] = useState<string | null>(null);
 
@@ -52,8 +54,11 @@ export default function ProposalResult({
     <div className="flex h-full flex-col overflow-hidden">
       {/* loading */}
       {loading && (
-        <div className="mb-3 text-sm text-emerald-400">
-          Generating proposal...
+        <div className="mb-3 flex items-center gap-2 text-sm text-emerald-400">
+          <span className="animate-pulse">●</span>
+          {loadingStep === 'analyzing'
+            ? 'Analyzing job...'
+            : 'Generating proposal...'}
         </div>
       )}
 
