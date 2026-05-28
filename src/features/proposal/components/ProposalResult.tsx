@@ -5,17 +5,21 @@ import type { ProposalContent } from '../../../types/proposal';
 import type { JobAnalysis } from '../../../types/job';
 import type { JobScore } from '../../../types/scoring';
 
+import type { CompetitionEstimation } from '../../../types/scoring';
+
 type Props = {
   analysis: JobAnalysis | null;
+  jobScore: JobScore | null;
+  competition: CompetitionEstimation | null;
   proposalContent: ProposalContent | null;
   loading: boolean;
-  jobScore: JobScore | null;
 };
 
 export default function ProposalResult({
   analysis,
-  proposalContent,
   jobScore,
+  competition,
+  proposalContent,
   loading,
 }: Props) {
   const [copied, setCopied] = useState<string | null>(null);
@@ -175,6 +179,88 @@ export default function ProposalResult({
                 <span className="text-zinc-500 block mb-2">Reasons:</span>
                 <ul className="space-y-1">
                   {jobScore.reasons.map((r, i) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-2 text-xs text-zinc-400"
+                    >
+                      <span className="mt-0.5 text-zinc-600">•</span>
+                      {r}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* competition */}
+        {competition && (
+          <section className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
+            <h2 className="mb-4 text-sm font-semibold text-white">
+              Competition Analysis
+            </h2>
+
+            <div className="space-y-3 text-sm text-zinc-300">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-lg bg-zinc-900 p-3">
+                  <div className="text-xs text-zinc-500 mb-1">
+                    Competition Score
+                  </div>
+                  <div className="text-xl font-bold text-white">
+                    {competition.competitionScore}
+                  </div>
+                </div>
+                <div className="rounded-lg bg-zinc-900 p-3">
+                  <div className="text-xs text-zinc-500 mb-1">
+                    Saturation Risk
+                  </div>
+                  <div className="text-xl font-bold text-white">
+                    {competition.saturationRisk}%
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <span className="text-zinc-500">Competition Level:</span>{' '}
+                <span
+                  className={
+                    competition.competitionLevel === 'low'
+                      ? 'text-emerald-400'
+                      : competition.competitionLevel === 'medium'
+                        ? 'text-yellow-400'
+                        : 'text-red-400'
+                  }
+                >
+                  {competition.competitionLevel}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-zinc-500">Market Type:</span>{' '}
+                <span className="capitalize">{competition.marketType}</span>
+              </div>
+
+              <div>
+                <span className="text-zinc-500">
+                  Differentiation Potential:
+                </span>{' '}
+                <span
+                  className={
+                    competition.differentiationPotential === 'high'
+                      ? 'text-emerald-400'
+                      : competition.differentiationPotential === 'medium'
+                        ? 'text-yellow-400'
+                        : 'text-red-400'
+                  }
+                >
+                  {competition.differentiationPotential}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-zinc-500 block mb-2">Reasoning:</span>
+                <ul className="space-y-1">
+                  {competition.reasoning.map((r, i) => (
                     <li
                       key={i}
                       className="flex items-start gap-2 text-xs text-zinc-400"

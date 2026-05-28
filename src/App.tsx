@@ -9,6 +9,8 @@ import type { ProposalFormData, ProposalContent } from './types/proposal';
 import { scoreJob } from './services/scoring';
 import type { JobScore } from './types/scoring';
 import type { JobAnalysis } from './types/job';
+import { estimateCompetition } from './services/competition';
+import type { CompetitionEstimation } from './types/scoring';
 import { mapFormToJob } from './utils/mapFormToJob';
 
 export default function App() {
@@ -20,6 +22,10 @@ export default function App() {
     useState<ProposalContent | null>(null);
 
   const [jobScore, setJobScore] = useState<JobScore | null>(null);
+
+  const [competition, setCompetition] = useState<CompetitionEstimation | null>(
+    null,
+  );
 
   const [abortController, setAbortController] =
     useState<AbortController | null>(null);
@@ -39,6 +45,7 @@ export default function App() {
       setLoading(true);
       setAnalysis(null);
       setJobScore(null);
+      setCompetition(null);
       setProposalContent(null);
 
       const job = mapFormToJob(form);
@@ -51,7 +58,11 @@ export default function App() {
       const score = scoreJob(analysisResult, job.description);
       setJobScore(score);
 
-      // 3. proposal
+      // 3. competition
+      const competitionResult = estimateCompetition(job.description);
+      setCompetition(competitionResult);
+
+      // 4. proposal
       await generateProposal({
         ...job,
         signal: controller.signal,
@@ -92,6 +103,7 @@ export default function App() {
           <ProposalResult
             analysis={analysis}
             jobScore={jobScore}
+            competition={competition}
             proposalContent={proposalContent}
             loading={loading}
           />
