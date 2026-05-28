@@ -6,6 +6,8 @@ import { generateProposal } from './services/ai';
 import { analyzeJob } from './services/analysis';
 
 import type { ProposalFormData, ProposalContent } from './types/proposal';
+import { scoreJob } from './services/scoring';
+import type { JobScore } from './types/scoring';
 import type { JobAnalysis } from './types/job';
 import { mapFormToJob } from './utils/mapFormToJob';
 
@@ -16,6 +18,8 @@ export default function App() {
 
   const [proposalContent, setProposalContent] =
     useState<ProposalContent | null>(null);
+
+  const [jobScore, setJobScore] = useState<JobScore | null>(null);
 
   const [abortController, setAbortController] =
     useState<AbortController | null>(null);
@@ -34,6 +38,7 @@ export default function App() {
     try {
       setLoading(true);
       setAnalysis(null);
+      setJobScore(null);
       setProposalContent(null);
 
       const job = mapFormToJob(form);
@@ -42,7 +47,11 @@ export default function App() {
       const analysisResult = await analyzeJob(job);
       setAnalysis(analysisResult);
 
-      // 2. proposal
+      // 2. score
+      const score = scoreJob(analysisResult, job.description);
+      setJobScore(score);
+
+      // 3. proposal
       await generateProposal({
         ...job,
         signal: controller.signal,
@@ -82,6 +91,7 @@ export default function App() {
         <section className="flex flex-col h-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
           <ProposalResult
             analysis={analysis}
+            jobScore={jobScore}
             proposalContent={proposalContent}
             loading={loading}
           />
