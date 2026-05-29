@@ -9,6 +9,11 @@ import type { PriceEvaluation } from '../../../types/job';
 import type { DecisionSummary } from '../../../types/scoring';
 import type { ConnectsEstimation } from '../../../types/scoring';
 import AnalysisAccordion from './AnalysisAccordion';
+import { useRef, useImperativeHandle, forwardRef } from 'react';
+
+export type ProposalResultHandle = {
+  scrollToTop: () => void;
+};
 
 type Props = {
   analysis: JobAnalysis | null;
@@ -23,19 +28,27 @@ type Props = {
   loadingStep: 'idle' | 'analyzing' | 'generating';
 };
 
-export default function ProposalResult({
+const ProposalResult = forwardRef<ProposalResultHandle, Props>(({
   analysis,
+  proposalContent,
+  loading,
   jobScore,
   competition,
+  loadingStep,
   decision,
   priceEval,
   connectsEst,
-  proposalContent,
   error,
-  loading,
-  loadingStep,
-}: Props) {
+}, ref) => {
   const [copied, setCopied] = useState<string | null>(null);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    scrollToTop: () => {
+      scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+  }));
 
   const handleCopy = async (text: string, type: string) => {
     if (!text) return;
@@ -80,7 +93,7 @@ export default function ProposalResult({
       )}
 
       {/* content */}
-      <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-4 pr-2">
         {/* 1. Decision */}
         {decision && (
           <section
@@ -239,4 +252,6 @@ export default function ProposalResult({
       </div>
     </div>
   );
-}
+});
+
+export default ProposalResult;
