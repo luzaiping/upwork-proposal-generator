@@ -17,6 +17,7 @@ type Props = {
   priceEval: PriceEvaluation | null;
   connectsEst: ConnectsEstimation | null;
   proposalContent: ProposalContent | null;
+  error: string | null;
   loading: boolean;
   loadingStep: 'idle' | 'analyzing' | 'generating';
 };
@@ -29,6 +30,7 @@ export default function ProposalResult({
   priceEval,
   connectsEst,
   proposalContent,
+  error,
   loading,
   loadingStep,
 }: Props) {
@@ -50,7 +52,7 @@ export default function ProposalResult({
     return text.replace(/###/g, '##').replace(/\n{3,}/g, '\n\n');
   };
 
-  if (!analysis && !proposalContent && !loading) {
+  if (!analysis && !proposalContent && !loading && !error) {
     return (
       <div className="flex h-full items-center justify-center text-zinc-500">
         AI proposal will appear here
@@ -67,6 +69,12 @@ export default function ProposalResult({
           {loadingStep === 'analyzing'
             ? 'Analyzing job...'
             : 'Generating proposal...'}
+        </div>
+      )}
+
+      {error && (
+        <div className="mb-3 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+          {error}
         </div>
       )}
 

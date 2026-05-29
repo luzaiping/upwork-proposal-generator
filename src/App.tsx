@@ -27,26 +27,20 @@ export default function App() {
   >('idle');
 
   const [analysis, setAnalysis] = useState<JobAnalysis | null>(null);
-
   const [proposalContent, setProposalContent] =
     useState<ProposalContent | null>(null);
-
   const [jobScore, setJobScore] = useState<JobScore | null>(null);
-
   const [competition, setCompetition] = useState<CompetitionEstimation | null>(
     null,
   );
-
   const [decision, setDecision] = useState<DecisionSummary | null>(null);
-
   const [priceEval, setPriceEval] = useState<PriceEvaluation | null>(null);
-
   const [connectsEst, setConnectsEst] = useState<ConnectsEstimation | null>(
     null,
   );
 
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
-
+  const [error, setError] = useState<string | null>(null);
   const [abortController, setAbortController] =
     useState<AbortController | null>(null);
 
@@ -71,6 +65,7 @@ export default function App() {
       setPriceEval(null);
       setConnectsEst(null);
       setProposalContent(null);
+      setError(null);
 
       const job = mapFormToJob(form);
 
@@ -133,8 +128,11 @@ export default function App() {
       if (e instanceof DOMException && e.name === 'AbortError') {
         // user stopped manually
       } else if (e instanceof Error && e.message === 'Analysis timeout') {
-        alert('Analysis timed out, please try again.');
+        setError('Analysis timed out, please try again.');
+      } else if (e instanceof Error) {
+        setError(e.message);
       } else {
+        setError('Something went wrong, please try again.');
         console.error(e);
       }
     } finally {
@@ -197,6 +195,7 @@ export default function App() {
             priceEval={priceEval}
             connectsEst={connectsEst}
             proposalContent={proposalContent}
+            error={error}
             loading={loading}
             loadingStep={loadingStep}
           />

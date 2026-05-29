@@ -30,6 +30,16 @@ export async function analyzeJob(job: Job): Promise<JobAnalysis> {
     }),
   });
 
+  if (!res.ok) {
+    if (res.status === 401)
+      throw new Error('Invalid API key, please check your configuration.');
+    if (res.status === 429)
+      throw new Error('API rate limit reached, please try again later.');
+    if (res.status === 402)
+      throw new Error('Insufficient API balance, please top up your account.');
+    throw new Error(`Request failed (${res.status}), please try again.`);
+  }
+
   const data = await res.json();
 
   const content = data.choices?.[0]?.message?.content || '{}';
