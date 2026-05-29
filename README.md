@@ -126,10 +126,10 @@ src/
 
 ## Roadmap
 
+- [x] Job history — save and compare analyzed jobs
+- [x] Export — download analysis and proposal as Markdown
 - [ ] CDP integration — auto-fetch job details and user profile from Upwork
 - [ ] Candidate profile layer — pull skills and hourly rate from Upwork User Profile
-- [ ] Job history — save and compare analyzed jobs
-- [ ] Export — download analysis and proposal as PDF or Markdown
 
 ---
 
