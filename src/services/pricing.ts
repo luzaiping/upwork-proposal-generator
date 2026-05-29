@@ -19,7 +19,6 @@ function calcClientBudgetRate(job: Job, estimatedHours: number): number | undefi
 }
 
 function buildSummary(
-  isReasonable: boolean,
   budgetLevel: 'low' | 'mid' | 'high',
   recommended: { min: number; max: number },
   clientBudgetRate?: number,
@@ -68,6 +67,6 @@ export function evaluatePrice(
     budgetLevel,
     recommendedRate: recommended,
     clientBudgetRate: clientBudgetRate ? Math.round(clientBudgetRate) : undefined,
-    summary: buildSummary(isReasonable, budgetLevel, recommended, clientBudgetRate),
+    summary: buildSummary(budgetLevel, recommended, clientBudgetRate),
   };
 }

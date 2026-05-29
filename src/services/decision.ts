@@ -10,8 +10,6 @@ import type { TimingAdvice } from '../types/job';
 function buildSummary(
   verdict: Verdict,
   score: JobScore,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  analysis: JobAnalysis,
 ): string {
   if (verdict === 'apply') {
     return `Strong match with ${score.overallScore}/100 overall score — recommended to apply.`;
@@ -123,7 +121,7 @@ export function buildDecision(
   return {
     verdict,
     confidence: Math.min(confidence, 100),
-    summary: buildSummary(verdict, score, analysis),
+    summary: buildSummary(verdict, score),
     highlights,
     concerns,
     timingAdvice,
