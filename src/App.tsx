@@ -16,6 +16,8 @@ import type { DecisionSummary } from './types/scoring';
 import { evaluatePrice } from './services/pricing';
 import type { PriceEvaluation } from './types/job';
 import { evaluateTiming } from './services/timing';
+import { estimateConnects } from './services/connects';
+import type { ConnectsEstimation } from './types/scoring';
 import { mapFormToJob } from './utils/mapFormToJob';
 
 export default function App() {
@@ -38,6 +40,10 @@ export default function App() {
   const [decision, setDecision] = useState<DecisionSummary | null>(null);
 
   const [priceEval, setPriceEval] = useState<PriceEvaluation | null>(null);
+
+  const [connectsEst, setConnectsEst] = useState<ConnectsEstimation | null>(
+    null,
+  );
 
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
 
@@ -63,6 +69,7 @@ export default function App() {
       setCompetition(null);
       setDecision(null);
       setPriceEval(null);
+      setConnectsEst(null);
       setProposalContent(null);
 
       const job = mapFormToJob(form);
@@ -102,6 +109,14 @@ export default function App() {
         evaluateTiming(job.jobPostedAt),
       );
       setDecision(decisionResult);
+
+      // connects
+      const connectsResult = estimateConnects(
+        analysisResult,
+        score,
+        competitionResult,
+      );
+      setConnectsEst(connectsResult);
 
       // proposal
       if (decisionResult.verdict === 'skip') {
@@ -180,6 +195,7 @@ export default function App() {
             competition={competition}
             decision={decision}
             priceEval={priceEval}
+            connectsEst={connectsEst}
             proposalContent={proposalContent}
             loading={loading}
             loadingStep={loadingStep}

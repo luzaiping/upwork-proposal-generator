@@ -34,3 +34,9 @@ export type CompetitionEstimation = {
   differentiationPotential: DifferentiationPotential;
   reasoning: string[];
 };
+
+export type ConnectsEstimation = {
+  estimatedConnects: number;
+  worthSpending: boolean;
+  reason: string;
+};

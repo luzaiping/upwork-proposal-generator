@@ -7,6 +7,7 @@ import type { JobScore } from '../../../types/scoring';
 import type { CompetitionEstimation } from '../../../types/scoring';
 import type { DecisionSummary } from '../../../types/scoring';
 import type { PriceEvaluation } from '../../../types/job';
+import type { ConnectsEstimation } from '../../../types/scoring';
 
 type Props = {
   analysis: JobAnalysis | null;
@@ -14,6 +15,7 @@ type Props = {
   competition: CompetitionEstimation | null;
   decision: DecisionSummary | null;
   priceEval: PriceEvaluation | null;
+  connectsEst: ConnectsEstimation | null;
   proposalContent: ProposalContent | null;
   loading: boolean;
   loadingStep: 'idle' | 'analyzing' | 'generating';
@@ -25,6 +27,7 @@ export default function ProposalResult({
   competition,
   decision,
   priceEval,
+  connectsEst,
   proposalContent,
   loading,
   loadingStep,
@@ -115,6 +118,22 @@ export default function ProposalResult({
                 }`}
               >
                 {decision.timingAdvice.advice}
+              </div>
+            )}
+
+            {connectsEst && (
+              <div
+                className={`text-xs px-3 py-2 rounded-lg mb-4 ${
+                  connectsEst.worthSpending
+                    ? 'bg-emerald-500/10 text-emerald-400'
+                    : 'bg-red-500/10 text-red-400'
+                }`}
+              >
+                <span className="font-medium">
+                  Est. Connects: {connectsEst.estimatedConnects}
+                </span>
+                {' — '}
+                {connectsEst.reason}
               </div>
             )}
 
