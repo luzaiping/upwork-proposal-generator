@@ -168,6 +168,7 @@ export default function App() {
         decisionResult &&
         priceResult &&
         connectsResult &&
+        job &&
         proposalResult
       ) {
         const record = saveHistory({
