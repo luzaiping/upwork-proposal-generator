@@ -279,7 +279,7 @@ export default function App() {
           >
             ☰ History
           </button>
-          <h1 className="text-xl font-semibold">AI Proposal Generator</h1>
+          {/* <h1 className="text-xl font-semibold">AI Proposal Generator</h1> */}
         </header>
         <h1 className="text-xl font-semibold">AI Proposal Generator</h1>
       </header>
